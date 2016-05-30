@@ -26,14 +26,15 @@ set-default-env() {
 }
 
 # Set context environment variables.
-export PATH="$HOME/.heroku/python/bin:$PATH"
-export PYTHONUNBUFFERED=true
-export PYTHONHOME=/app/.heroku/python
-export LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH"
-export LD_LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH"
-export LANG="$LANG:en_US.UTF-8"
-export PYTHONHASHSEED="$PYTHONHASHSEED:random"
-export PYTHONPATH="$PYTHONPATH:/app/"
+PATH="$HOME/.heroku/python/bin:$PATH"
+PYTHONUNBUFFERED=true
+PYTHONHOME=/app/.heroku/python
+LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH"
+LD_LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH"
+LANG="$LANG:en_US.UTF-8"
+PYTHONHASHSEED="$PYTHONHASHSEED:random"
+PYTHONPATH="$PYTHONPATH:/app/"
+WEBCONCURRENCY_PROFILE_PATH="$BUILD_DIR/.profile.d/python.webconcurrency.sh"
 
 # Install sane-default script for WEB_CONCURRENCY environment variable.
 cp $ROOT_DIR/vendor/python.webconcurrency.sh $WEBCONCURRENCY_PROFILE_PATH
