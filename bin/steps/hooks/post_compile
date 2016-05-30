@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-if [ -f $BIN_DIR/post_compile ]; then
-    puts-step "Running post-compile hook"
-    chmod +x $BIN_DIR/post_compile
-    sub-env $BIN_DIR/post_compile
-    puts-step "Done"
-fi
