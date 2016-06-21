@@ -9,20 +9,8 @@ ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 
-function install_tableausdk {
-    TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
-    TABLEAU_SDK_ARCHIVE=tableausdk.tag.gz
-
-    cd /tmp
-    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
-    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
-    rm $TABTLEAU_SDK_ARCHIVE
-    python TableauSDK-9300.0.0.0/setup.py install &> /dev/null
-    rm -rf TableauSDK-9300.0.0.0
-    cd
-}
-
-install_tableausdk
+TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
+TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
 
 # Usage: $ set-env key value
 set-env() {
@@ -34,15 +22,40 @@ set-default-env() {
   export $1=${$1:-$2}
 }
 
-# Gettext
-set-env PATH $HOME/gettext/bin:$PATH
-make compilemessages
+function install_tableausdk {
+    cd /tmp
+    puts-step "Downloading $TABLEAU_SDK_URL."
+    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
+    puts-step "Extracting $TABLEAU_SDK_URL."
+    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
+    rm -rf $TABTLEAU_SDK_ARCHIVE
+    puts-step "Installing $TABLEAU_SDK_URL."
+    python TableauSDK-9300.0.0.0/setup.py install &> /dev/null
+    puts-step "Cleaning $TABLEAU_SDK_URL."
+    rm -rf "TableauSDK-9300.0.0.0"
+    cd
+}
 
-# Sass
-set-env PATH $HOME/.gem/bin:$PATH
-make sass
+function compile_gettext {
+    # Gettext
+    puts-step "Compiling gettext."
+    set-env PATH $HOME/gettext/bin:$PATH
+    make compilemessages
+}
+
+function compile_sass {
+    # Sass
+    puts-step "Compiling sass."
+    set-env PATH $HOME/.gem/bin:$PATH
+    make sass
+}
+
+install_tableausdk
+compile_gettext
+compile_sass
 
 # Migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
+    puts-step "Applying migrations."
     python manage.py migrate --noinput
 fi
