@@ -9,6 +9,7 @@ ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
+PYTHON_EXE="/app/.heroku/python/bin/python"
 
 TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
 TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
@@ -38,8 +39,7 @@ function install_tableausdk {
     rm -rf $TABLEAU_SDK_ARCHIVE
     puts-step "Installing $TABLEAU_SDK_PACKAGE."
     cd $TABLEAU_SDK_PACKAGE
-    which python
-    python setup.py install
+    $PYTHON_EXE setup.py install
     puts-step "Cleaning files."
     cd /tmp
     rm -rf $TABLEAU_SDK_PACKAGE
@@ -50,14 +50,14 @@ function compile_gettext {
     # Gettext
     puts-step "Compiling gettext."
     set-env PATH $HOME/gettext/bin:$PATH
-    make compilemessages
+    make PYTHON_EXE=$PYTHON_EXE compilemessages
 }
 
 function compile_sass {
     # Sass
     puts-step "Compiling sass."
     set-env PATH $HOME/.gem/bin:$PATH
-    make sass
+    make PYTHON_EXE=$PYTHON_EXE sass
 }
 
 install_tableausdk
@@ -67,5 +67,5 @@ compile_sass
 # Migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
     puts-step "Applying migrations."
-    python manage.py migrate --noinput
+    $PYTHON_EXE manage.py migrate --noinput
 fi
