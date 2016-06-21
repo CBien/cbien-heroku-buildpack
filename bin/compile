@@ -9,11 +9,20 @@ ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 
-export LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
-export LD_LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
-PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
+function install_tableausdk {
+    TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
+    TABLEAU_SDK_ARCHIVE=tableausdk.tag.gz
 
-cd $BUILD_DIR
+    cd /tmp
+    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
+    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
+    rm $TABTLEAU_SDK_ARCHIVE
+    python TableauSDK-9300.0.0.0/setup.py install &> /dev/null
+    rm -rf TableauSDK-9300.0.0.0
+    cd
+}
+
+install_tableausdk
 
 # Usage: $ set-env key value
 set-env() {
@@ -25,21 +34,12 @@ set-default-env() {
   export $1=${$1:-$2}
 }
 
-# Set context environment variables.
-export PATH="$HOME/.heroku/python/bin:$PATH"
-export PYTHONUNBUFFERED=true
-export PYTHONHOME=/app/.heroku/python
-export LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH"
-export LD_LIBRARY_PATH="/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH"
-export LANG=$LANG:en_US.UTF-8
-export PYTHONPATH="$PYTHONPATH:/app/"
-
 # Gettext
-export PATH=$HOME/gettext/bin:$PATH
+set-env PATH $HOME/gettext/bin:$PATH
 make compilemessages
 
 # Sass
-export PATH=$HOME/.gem/bin:$PATH
+set-env PATH $HOME/.gem/bin:$PATH
 make sass
 
 # Migrations
