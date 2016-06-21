@@ -8,18 +8,24 @@ BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
+PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
 
 TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
 TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
 
+# Buildpack Steps.
+puts-step() {
+    echo "-----> $@"
+}
+
 # Usage: $ set-env key value
 set-env() {
-  export $1=$2
+    echo "export $1=$2" >> $PROFILE_PATH
 }
 
 # Usage: $ set-default-env key value
 set-default-env() {
-  export $1=${$1:-$2}
+    echo "export $1=\${$1:-$2}" >> $PROFILE_PATH
 }
 
 function install_tableausdk {
