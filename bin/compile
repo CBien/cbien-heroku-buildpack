@@ -30,45 +30,7 @@ set-default-env() {
     echo "export $1=\${$1:-$2}" >> $PROFILE_PATH
 }
 
-function install_tableausdk {
-    cd /tmp
-    puts-step "Downloading $TABLEAU_SDK_URL."
-    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
-    puts-step "Extracting $TABLEAU_SDK_ARCHIVE."
-    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
-    rm -rf $TABLEAU_SDK_ARCHIVE
-    puts-step "Installing $TABLEAU_SDK_PACKAGE."
-    cd $TABLEAU_SDK_PACKAGE
-    $PYTHON_EXE setup.py install
-    puts-step "Cleaning files."
-    cd /tmp
-    rm -rf $TABLEAU_SDK_PACKAGE
-    cd
-}
 
-function compile_gettext {
-    # Gettext
-    puts-step "Compiling gettext."
-    set-env PATH $HOME/gettext/bin:$PATH
-    make PYTHON_EXE=$PYTHON_EXE compilemessages
-}
-
-function compile_sass {
-    # Sass
-    puts-step "Compiling sass."
-    set-env PATH $HOME/.gem/bin:$PATH
-    make PYTHON_EXE=$PYTHON_EXE sass
-}
-
-# Configure environment
-$PROFILE_PATH
-# Execute steps
-install_tableausdk
-compile_gettext
-compile_sass
-
-# Apply migrations
-if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
-    puts-step "Applying migrations."
-    $PYTHON_EXE manage.py migrate --noinput
-fi
+bpwatch start post_compile
+  source $BIN_DIR/hook/post_compile
+bpwatch stop post_compile
