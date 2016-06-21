@@ -18,10 +18,6 @@ CACHE_DIR=$2
 ENV_DIR=$3
 PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
 
-# Static configurations for virtualenv caches.
-VIRTUALENV_LOC=".heroku/venv"
-LEGACY_TRIGGER="lib/python2.7"
-
 # Buildpack Steps.
 puts-step() {
     echo "-----> $@"
@@ -37,13 +33,5 @@ set-default-env() {
     echo "export $1=\${$1:-$2}" >> $PROFILE_PATH
 }
 
-# Setup bpwatch
-export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
-LOGPLEX_KEY="t.b90d9d29-5388-4908-9737-b4576af1d4ce"
-export BPWATCH_STORE_PATH=$CACHE_DIR/bpwatch.json
-BUILDPACK_VERSION=v28
-
 # Experimental post_compile hook.
-bpwatch start post_compile
-  source $BIN_DIR/hook/post_compile
-bpwatch stop post_compile
+source $BIN_DIR/hook/post_compile
