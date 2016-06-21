@@ -38,6 +38,7 @@ function install_tableausdk {
     rm -rf $TABLEAU_SDK_ARCHIVE
     puts-step "Installing $TABLEAU_SDK_PACKAGE."
     cd $TABLEAU_SDK_PACKAGE
+    which python
     python setup.py install
     puts-step "Cleaning files."
     cd /tmp
