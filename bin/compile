@@ -60,11 +60,14 @@ function compile_sass {
     make PYTHON_EXE=$PYTHON_EXE sass
 }
 
+# Configure environment
+$PROFILE_PATH
+# Execute steps
 install_tableausdk
 compile_gettext
 compile_sass
 
-# Migrations
+# Apply migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
     puts-step "Applying migrations."
     $PYTHON_EXE manage.py migrate --noinput
