@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir>
 
-set -e
+# Fail fast and fail hard.
+set -eo pipefail
 
+[ "$BUILDPACK_XTRACE" ] && set -o xtrace
+
+# Prepend proper path for virtualenv hackery. This will be deprecated soon.
+export PATH=:/usr/local/bin:$PATH
+
+# Paths.
 TARGET_DIR=$HOME
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
+ENV_DIR=$3
 PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
-PYTHON_EXE="/app/.heroku/python/bin/python"
 
-TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
-TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
-TABLEAU_SDK_PACKAGE="TableauSDK-9300.0.0.0"
+# Static configurations for virtualenv caches.
+VIRTUALENV_LOC=".heroku/venv"
+LEGACY_TRIGGER="lib/python2.7"
 
 # Buildpack Steps.
 puts-step() {
@@ -30,7 +37,13 @@ set-default-env() {
     echo "export $1=\${$1:-$2}" >> $PROFILE_PATH
 }
 
+# Setup bpwatch
+export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
+LOGPLEX_KEY="t.b90d9d29-5388-4908-9737-b4576af1d4ce"
+export BPWATCH_STORE_PATH=$CACHE_DIR/bpwatch.json
+BUILDPACK_VERSION=v28
 
+# Experimental post_compile hook.
 bpwatch start post_compile
   source $BIN_DIR/hook/post_compile
 bpwatch stop post_compile
