@@ -83,4 +83,4 @@ export PKG_CONFIG_PATH=/app/.heroku/vendor/lib/pkg-config:$BUILD_DIR/.heroku/ven
 cd $BUILD_DIR
 
 # Experimental post_compile hook.
-source $BIN_DIR/steps/hooks/post_compile
+source $BIN_DIR/hooks/post_compile
