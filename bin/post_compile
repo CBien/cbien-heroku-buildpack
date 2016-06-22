@@ -41,7 +41,12 @@ function compile_sass {
 }
 
 # Execute steps
-puts-step "Using python $(PYTHON_EXE)"
+puts-step "Using python $PYTHON_EXE"
+puts-step "env"
+env
+puts-step "ls"
+ls -lR /app
+puts-step "steps"
 install_tableausdk
 compile_gettext
 compile_sass
