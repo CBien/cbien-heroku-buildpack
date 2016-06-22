@@ -45,7 +45,9 @@ puts-step "Using python $PYTHON_EXE"
 puts-step "env"
 env
 puts-step "ls"
-ls -lR /app
+ls -laR /app/.heroku
+puts-step "profile"
+cat "$BUILD_DIR/.profile.d/python.sh"
 puts-step "steps"
 install_tableausdk
 compile_gettext

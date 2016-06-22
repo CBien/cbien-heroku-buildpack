@@ -10,47 +10,116 @@ set -eo pipefail
 export PATH=:/usr/local/bin:$PATH
 
 # Paths.
-TARGET_DIR=$HOME
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
 ROOT_DIR=$(dirname $BIN_DIR)
 BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
+
+# Static configurations for virtualenv caches.
+VIRTUALENV_LOC=".heroku/venv"
+LEGACY_TRIGGER="lib/python2.7"
+
+DEFAULT_PYTHON_VERSION="python-2.7.10"
+DEFAULT_PYTHON_STACK="cedar"
+PYTHON_EXE="/app/.heroku/python/bin/python"
+PIP_VERSION="7.1.2"
+SETUPTOOLS_VERSION="18.7.1"
+
+# Common Problem Warnings
+export WARNINGS_LOG=$(mktemp)
+
+# Setup bpwatch
+export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
+LOGPLEX_KEY="t.b90d9d29-5388-4908-9737-b4576af1d4ce"
+export BPWATCH_STORE_PATH=$CACHE_DIR/bpwatch.json
+BUILDPACK_VERSION=v28
+
+# Setup pip-pop (pip-diff)
+export PATH=$PATH:$ROOT_DIR/vendor/pip-pop
+
+# Support Anvil Build_IDs
+[ ! "$SLUG_ID" ] && SLUG_ID="defaultslug"
+[ ! "$REQUEST_ID" ] && REQUEST_ID=$SLUG_ID
+[ ! "$STACK" ] && STACK=$DEFAULT_PYTHON_STACK
+
+# Sanitizing environment variables.
+unset GIT_DIR PYTHONHOME PYTHONPATH LD_LIBRARY_PATH LIBRARY_PATH
+
+bpwatch init $LOGPLEX_KEY
+bpwatch build python $BUILDPACK_VERSION $REQUEST_ID
+TMP_APP_DIR=$CACHE_DIR/tmp_app_dir
+
+bpwatch start compile
+
+# Syntax sugar.
+source $BIN_DIR/utils
+
+# Import collection of warnings.
+source $BIN_DIR/warnings
+
+# Directory Hacks for path consistiency.
+APP_DIR='/app'
+TMP_APP_DIR=$CACHE_DIR/tmp_app_dir
+
+# Skip these steps for Docker.
+if [[ ! "$DOCKER_BUILD" ]]; then
+
+  # Copy Anvil app dir to temporary storage...
+  bpwatch start anvil_appdir_stage
+  if [ "$SLUG_ID" ]; then
+    mkdir -p $TMP_APP_DIR
+    deep-mv $APP_DIR $TMP_APP_DIR
+  else
+    deep-rm $APP_DIR
+  fi
+  bpwatch stop anvil_appdir_stage
+
+  # Copy Application code in.
+  bpwatch start appdir_stage
+    deep-cp $BUILD_DIR $APP_DIR
+  bpwatch stop appdir_stage
+fi
+
+
+# Set new context.
+ORIG_BUILD_DIR=$BUILD_DIR
+BUILD_DIR=$APP_DIR
+
+# Set up outputs under new context
 PROFILE_PATH="$BUILD_DIR/.profile.d/python.sh"
+WEBCONCURRENCY_PROFILE_PATH="$BUILD_DIR/.profile.d/python.webconcurrency.sh"
 
-# Buildpack Steps.
-puts-step() {
-    echo "-----> $@"
-}
+# We'll need to send these statics to other scripts we `source`.
+export BUILD_DIR CACHE_DIR BIN_DIR PROFILE_PATH
 
-# Usage: $ set-env key value
-set-env() {
-    echo "export $1=$2" >> $PROFILE_PATH
-}
+# Prepend proper path buildpack use.
+export PATH=$BUILD_DIR/.heroku/python/bin:$BUILD_DIR/.heroku/vendor/bin:$PATH
+export PYTHONUNBUFFERED=1
+export LANG=en_US.UTF-8
+export C_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include
+export CPLUS_INCLUDE_PATH=/app/.heroku/vendor/include:$BUILD_DIR/.heroku/vendor/include:/app/.heroku/python/include
+export LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
+export LD_LIBRARY_PATH=/app/.heroku/vendor/lib:$BUILD_DIR/.heroku/vendor/lib:/app/.heroku/python/lib
+export PKG_CONFIG_PATH=/app/.heroku/vendor/lib/pkg-config:$BUILD_DIR/.heroku/vendor/lib/pkg-config:/app/.heroku/python/lib/pkg-config
 
-# Usage: $ set-default-env key value
-set-default-env() {
-    echo "export $1=\${$1:-$2}" >> $PROFILE_PATH
-}
+# Switch to the repo's context.
+cd $BUILD_DIR
 
-sub-env() {
+# Syntax sugar.
+source $BIN_DIR/utils
 
-  WHITELIST=${2:-''}
-  BLACKLIST=${3:-'^(GIT_DIR|PYTHONHOME|LD_LIBRARY_PATH|LIBRARY_PATH|PATH)$'}
-
-  (
-    if [ -d "$ENV_DIR" ]; then
-      for e in $(ls $ENV_DIR); do
-        echo "$e" | grep -E "$WHITELIST" | grep -qvE "$BLACKLIST" &&
-        export "$e=$(cat $ENV_DIR/$e)"
-        :
-      done
-    fi
-
-    $1
-
-  )
-}
+# Set context environment variables.
+set-env PATH '$HOME/.heroku/python/bin:$PATH'
+set-env PYTHONUNBUFFERED true
+set-env PYTHONHOME /app/.heroku/python
+set-env LIBRARY_PATH '/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH'
+set-env LD_LIBRARY_PATH '/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH'
+set-default-env LANG en_US.UTF-8
+set-default-env PYTHONHASHSEED random
+set-default-env PYTHONPATH /app/
 
 # Experimental post_compile hook.
-source $BIN_DIR/hook/post_compile
+bpwatch start post_compile
+  source $BIN_DIR/steps/hooks/post_compile
+bpwatch stop post_compile
