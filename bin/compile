@@ -41,6 +41,7 @@ unset GIT_DIR PYTHONHOME PYTHONPATH LD_LIBRARY_PATH LIBRARY_PATH
 source $BIN_DIR/utils
 
 # Set new context.
+APP_DIR='/app'
 BUILD_DIR=$APP_DIR
 
 # Set up outputs under new context
