@@ -26,15 +26,6 @@ PYTHON_EXE="/app/.heroku/python/bin/python"
 PIP_VERSION="7.1.2"
 SETUPTOOLS_VERSION="18.7.1"
 
-# Common Problem Warnings
-export WARNINGS_LOG=$(mktemp)
-
-# Setup bpwatch
-export PATH=$PATH:$ROOT_DIR/vendor/bpwatch
-LOGPLEX_KEY="t.b90d9d29-5388-4908-9737-b4576af1d4ce"
-export BPWATCH_STORE_PATH=$CACHE_DIR/bpwatch.json
-BUILDPACK_VERSION=v28
-
 # Setup pip-pop (pip-diff)
 export PATH=$PATH:$ROOT_DIR/vendor/pip-pop
 
@@ -109,17 +100,5 @@ cd $BUILD_DIR
 # Syntax sugar.
 source $BIN_DIR/utils
 
-# Set context environment variables.
-set-env PATH '$HOME/.heroku/python/bin:$PATH'
-set-env PYTHONUNBUFFERED true
-set-env PYTHONHOME /app/.heroku/python
-set-env LIBRARY_PATH '/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LIBRARY_PATH'
-set-env LD_LIBRARY_PATH '/app/.heroku/vendor/lib:/app/.heroku/python/lib:$LD_LIBRARY_PATH'
-set-default-env LANG en_US.UTF-8
-set-default-env PYTHONHASHSEED random
-set-default-env PYTHONPATH /app/
-
 # Experimental post_compile hook.
-bpwatch start post_compile
-  source $BIN_DIR/steps/hooks/post_compile
-bpwatch stop post_compile
+source $BIN_DIR/steps/hooks/post_compile
