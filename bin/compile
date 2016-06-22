@@ -40,26 +40,6 @@ unset GIT_DIR PYTHONHOME PYTHONPATH LD_LIBRARY_PATH LIBRARY_PATH
 # Syntax sugar.
 source $BIN_DIR/utils
 
-# Directory Hacks for path consistiency.
-APP_DIR='/app'
-TMP_APP_DIR=$CACHE_DIR/tmp_app_dir
-
-# Skip these steps for Docker.
-if [[ ! "$DOCKER_BUILD" ]]; then
-
-  # Copy Anvil app dir to temporary storage...
-  if [ "$SLUG_ID" ]; then
-    mkdir -p $TMP_APP_DIR
-    deep-mv $APP_DIR $TMP_APP_DIR
-  else
-    deep-rm $APP_DIR
-  fi
-
-  # Copy Application code in.
-  deep-cp $BUILD_DIR $APP_DIR
-fi
-
-
 # Set new context.
 BUILD_DIR=$APP_DIR
 
