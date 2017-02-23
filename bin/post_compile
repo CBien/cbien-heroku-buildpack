@@ -44,8 +44,7 @@ function compile_sass {
 puts-step "Using python $PYTHON_EXE"
 install_tableausdk
 compile_gettext
-# Jim: not used anymore because we collect statics locally
-# compile_sass
+compile_sass
 
 # Apply migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
