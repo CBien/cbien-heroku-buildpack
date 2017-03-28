@@ -42,8 +42,8 @@ function compile_sass {
 
 # Execute steps
 puts-step "Using python $PYTHON_EXE"
-install_tableausdk
-compile_gettext
+#install_tableausdk
+#compile_gettext
 compile_sass
 
 # Apply migrations
