@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 PYTHON_EXE=`which python`
-TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
+TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-10-3-13.tar.gz"
 TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
-TABLEAU_SDK_PACKAGE="TableauSDK-9300.0.0.0"
+TABLEAU_SDK_PACKAGE="TableauSDK-10300.18.0703.1954"
 
 # Buildpack Steps.
 puts-step() {
