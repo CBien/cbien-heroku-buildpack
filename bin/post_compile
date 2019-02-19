@@ -1,29 +1,61 @@
 #!/usr/bin/env bash
 
 PYTHON_EXE=`which python`
-TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
-TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
-TABLEAU_SDK_PACKAGE="TableauSDK-9300.0.0.0"
+# TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
+# TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
+# TABLEAU_SDK_PACKAGE="TableauSDK-9300.0.0.0"
 
 # Buildpack Steps.
 puts-step() {
     echo "-----> $@"
 }
 
-function install_tableausdk {
-    cd /tmp
-    puts-step "Downloading $TABLEAU_SDK_URL"
-    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
-    puts-step "Extracting $TABLEAU_SDK_ARCHIVE"
-    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
-    rm -rf $TABLEAU_SDK_ARCHIVE
-    puts-step "Installing $TABLEAU_SDK_PACKAGE"
-    cd $TABLEAU_SDK_PACKAGE
-    $PYTHON_EXE setup.py install
+# function install_tableausdk {
+#     cd /tmp
+#     puts-step "Downloading $TABLEAU_SDK_URL"
+#     wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
+#     puts-step "Extracting $TABLEAU_SDK_ARCHIVE"
+#     tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
+#     rm -rf $TABLEAU_SDK_ARCHIVE
+#     puts-step "Installing $TABLEAU_SDK_PACKAGE"
+#     cd $TABLEAU_SDK_PACKAGE
+#     $PYTHON_EXE setup.py install
+#     puts-step "Cleaning files"
+#     cd /tmp
+#     rm -rf $TABLEAU_SDK_PACKAGE
+#     cd
+# }
+
+TABLEAU_EXTRACT_API_TAR="extractapi-py-linux-x86_64-2018-3-2.tar.gz"
+TABLEAU_EXTRACT_API_URL="https://downloads.tableau.com/tssoftware/"$TABLEAU_EXTRACT_API_TAR
+
+function install_tableau_extract_api {
+    cd $HOME
+    puts-step "Downloading $TABLEAU_EXTRACT_API_URL"
+    wget -O $TABLEAU_EXTRACT_API_TAR $TABLEAU_EXTRACT_API_URL &> /dev/null
+
+    puts-step "Extracting $TABLEAU_EXTRACT_API_TAR"
+    TABLEAU_EXTRACT_API_PACKAGE=`tar -tzf $TABLEAU_EXTRACT_API_TAR | head -1 | cut -f1 -d"/"`
+    tar -xvzf $TABLEAU_EXTRACT_API_TAR
+    rm -rf $TABLEAU_EXTRACT_API_TAR
+
+    puts-step "Installing $TABLEAU_EXTRACT_API_PACKAGE"
+    cd $TABLEAU_EXTRACT_API_PACKAGE
+    $PYTHON_EXE setup.py build --user
+    $PYTHON_EXE setup.py install --user
+
     puts-step "Cleaning files"
-    cd /tmp
-    rm -rf $TABLEAU_SDK_PACKAGE
+    cd $HOME
+    rm -rf $TABLEAU_EXTRACT_API_PACKAGE
     cd
+
+    # tableau sdk needs libtinfo.so.5 which isn't installed on clever cloud so we make a symbolic link to the version they do have :o
+    # TODO find a better way to do this !
+    # ln -s /usr/x86_64-pc-linux-gnu/lib/libtinfo.so /home/bas/.local/lib/python3.7/site-packages/tableausdk/bin/hyper/libtinfo.so.5
+}
+
+function create_file_directory {
+    mkdir $APP_HOME/tableau/files
 }
 
 function compile_gettext {
@@ -42,7 +74,8 @@ function compile_sass {
 
 # Execute steps
 puts-step "Using python $PYTHON_EXE"
-install_tableausdk
+install_tableau_extract_api
+create_file_directory
 compile_gettext
 compile_sass
 
