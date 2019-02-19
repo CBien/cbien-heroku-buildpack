@@ -55,7 +55,7 @@ function install_tableau_extract_api {
 }
 
 function create_file_directory {
-    mkdir $APP_HOME/tableau/files
+    mkdir $HOME/tableau/files
 }
 
 function compile_gettext {
@@ -76,8 +76,8 @@ function compile_sass {
 puts-step "Using python $PYTHON_EXE"
 install_tableau_extract_api
 create_file_directory
-compile_gettext
-compile_sass
+# compile_gettext
+# compile_sass
 
 # Apply migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then
