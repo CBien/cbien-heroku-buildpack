@@ -1,29 +1,10 @@
 #!/usr/bin/env bash
 
 PYTHON_EXE=`which python`
-TABLEAU_SDK_URL="https://downloads.tableau.com/tssoftware/Tableau-SDK-Python-Linux-64Bit-9-3-3.tar.gz"
-TABLEAU_SDK_ARCHIVE="tableausdk.tag.gz"
-TABLEAU_SDK_PACKAGE="TableauSDK-9300.0.0.0"
 
 # Buildpack Steps.
 puts-step() {
     echo "-----> $@"
-}
-
-function install_tableausdk {
-    cd /tmp
-    puts-step "Downloading $TABLEAU_SDK_URL"
-    wget -O $TABLEAU_SDK_ARCHIVE $TABLEAU_SDK_URL &> /dev/null
-    puts-step "Extracting $TABLEAU_SDK_ARCHIVE"
-    tar -xvzf $TABLEAU_SDK_ARCHIVE &> /dev/null
-    rm -rf $TABLEAU_SDK_ARCHIVE
-    puts-step "Installing $TABLEAU_SDK_PACKAGE"
-    cd $TABLEAU_SDK_PACKAGE
-    $PYTHON_EXE setup.py install
-    puts-step "Cleaning files"
-    cd /tmp
-    rm -rf $TABLEAU_SDK_PACKAGE
-    cd
 }
 
 function compile_gettext {
@@ -42,7 +23,6 @@ function compile_sass {
 
 # Execute steps
 puts-step "Using python $PYTHON_EXE"
-install_tableausdk
 compile_gettext
 compile_sass
 
