@@ -48,6 +48,7 @@ Runtime options include:
 
 - python-2.7.10
 - python-3.5.0
+- python-3.6.7
 - pypy-2.6.1 (unsupported, experimental)
 - pypy3-2.4.0 (unsupported, experimental)
 
