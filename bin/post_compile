@@ -14,17 +14,9 @@ function compile_gettext {
     make PYTHON_EXE=$PYTHON_EXE compilemessages
 }
 
-function compile_sass {
-    # Sass
-    export PATH=$HOME/.gem/bin:$PATH
-    puts-step "Compiling sass"
-    make PYTHON_EXE=$PYTHON_EXE sass
-}
-
 # Execute steps
 puts-step "Using python $PYTHON_EXE"
 compile_gettext
-compile_sass
 
 # Apply migrations
 if [ "$MIGRATE_ON_DEPLOY" = "1" ]; then

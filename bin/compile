@@ -192,7 +192,10 @@ source $BIN_DIR/steps/gdal
 # Install dependencies with Pip.
 source $BIN_DIR/steps/pip-install
 
-# SASS support.
+# # Install NodeJS.
+source $BIN_DIR/steps/node
+
+# # SASS support.
 source $BIN_DIR/steps/sass
 
 # Gettext support.
@@ -222,6 +225,10 @@ bpwatch stop post_compile
 
 # Django collectstatic support.
 sub-env $BIN_DIR/steps/collectstatic
+
+
+# # Uninstall NodeJS. (Be sure to compile react before this)
+source $BIN_DIR/steps/removenode
 
 
 # Store new artifacts in cache.
