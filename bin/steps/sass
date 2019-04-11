@@ -1,15 +1,8 @@
 #!/usr/bin/env bash
 
-GEM_DIR=$HOME/.gem/
-
 bpwatch start sass
-
 puts-step "Installing SASS..."
-if [ ! -d "$GEM_DIR" ]; then
-  mkdir $GEM_DIR
-fi
-gem install sass -v 3.4 --no-rdoc --no-ri --install-dir "$GEM_DIR" | indent
-export GEM_PATH=$GEM_PATH:$GEM_DIR
-puts-step "Done in $GEM_PATH"
+
+npm install -g sass
 
 bpwatch stop sass

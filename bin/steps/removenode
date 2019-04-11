@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+bpwatch start removenodejs
+
+rm -rf .nvm
+
+bpwatch stop removenodejs
